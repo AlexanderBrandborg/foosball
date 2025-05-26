@@ -1,0 +1,13 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.foosball.app</groupId>
+    <artifactId>foosball</artifactId>
+    <version>1</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>5.1.1</version>
+        </dependency>
+    </dependencies>
+</project>
