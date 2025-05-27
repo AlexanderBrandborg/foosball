@@ -1,25 +1,95 @@
 public class Match {
-    private Player awayPlayer1;
-    private Player awayPlayer2;
-    private Player homePlayer1;
-    private Player homePlayer2;
-    private Integer homeScore; // Make nullable for when unset
-    private Integer awayScore; // Make nullable for when unset
+    private String id;
+    private Team homeTeam;
+    private Team awayTeam;
+    private Integer homeScore = null;
+    private Integer awayScore = null;
 
-    public Match(Player awayPlayer1, Player awayPlayer2, Player homePlayer1, Player homePlayer2) {
-        this.awayPlayer1 = awayPlayer1;
-        this.awayPlayer2 = awayPlayer2;
-        this.homePlayer1 = homePlayer1;
-        this.homePlayer2 = homePlayer2;
+    enum Outcome {
+        HOME,
+        AWAY,
+        TIE
     }
 
-    public void RecordOutcome(Integer homeScore, Integer awayScore) {
-        // If score was already set, we need to update the handicaps if another winner was found.
-        // If score was not set, we just set the handicaps.
+    public Match(String id, Team homeTeam, Team awayTeam) {
+        if(!homeTeam.isDistinctFromOtherTeam(awayTeam)){
+            throw new IllegalArgumentException("Teams share at least one player");
+        }
+        this.id = id;
+        this.homeTeam= homeTeam;
+        this.awayTeam= awayTeam;
+    }
 
+    public String getId() {
+        return id;
+    }
+
+    public Team getHomeTeam() {
+        return homeTeam;
+    }
+
+    public Team getAwayTeam() {
+        return awayTeam;
+    }
+
+    public Integer getHomeScore() {
+        return homeScore;
+    }
+
+    public Integer getAwayScore() {
+        return awayScore;
+    }
+
+    private Outcome getOutcome(int _homeScore, int _awayScore) {
+        if(_homeScore < _awayScore) {
+            return Outcome.AWAY;
+        } else if (_homeScore > _awayScore) {
+            return Outcome.HOME;
+        }
+        else {
+            return Outcome.TIE;
+        }
+    }
+
+    private void homeTeamWin(){
+        this.homeTeam.IncreaseHandicap();
+        this.awayTeam.DecreaseHandicap();
+    }
+
+    private void awayTeamWin(){
+        this.awayTeam.IncreaseHandicap();
+        this.homeTeam.DecreaseHandicap();
+    }
+
+    private void updateHandicaps(Outcome outcome){
+        switch (outcome) {
+            case HOME: this.homeTeamWin(); break;
+            case AWAY: this.awayTeamWin(); break;
+            case TIE: break;
+        }
+    }
+
+    private void correctHandicaps(Outcome previousOutcome, Outcome newOutcome){
+        // Reset handicaps first
+        switch (previousOutcome) {
+            case HOME: this.awayTeamWin(); break;
+            case AWAY: this.homeTeamWin(); break;
+            case TIE: break;
+        }
+
+        updateHandicaps(newOutcome);
+    }
+
+    public void recordOutcome(int homeScore, int awayScore) {
+        Outcome outcome = this.getOutcome(homeScore, awayScore);
+        boolean noScoresRegisteredYet = this.homeScore == null && this.awayScore == null;
+        if(noScoresRegisteredYet) {
+            this.updateHandicaps(outcome);
+        } else {
+            Outcome previousOutcome = this.getOutcome(this.homeScore, this.awayScore);
+            this.correctHandicaps(previousOutcome, outcome);
+        }
         this.homeScore = homeScore;
         this.awayScore = awayScore;
-
-
     }
 }

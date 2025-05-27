@@ -1,6 +1,8 @@
 import org.bson.types.ObjectId;
 
-public final class Player {
+import java.util.Objects;
+
+public class Player {
 
     private String id;
     private String name;
@@ -14,6 +16,7 @@ public final class Player {
         this.handicap = handicap;
     }
 
+    // TODO: id is always null here
     public Player(String name, String initials) {
         new Player(id, name, initials, 10);
     }
@@ -47,5 +50,10 @@ public final class Player {
 
     public void decreaseHandicap() {
         handicap -= 1;
+    }
+
+    // TODO: Overwirte getHash as well
+    public boolean equals(Player otherPlayer) {
+        return Objects.equals(this.getId(), otherPlayer.getId());
     }
 }
