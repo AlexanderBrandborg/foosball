@@ -2,62 +2,43 @@ import org.bson.types.ObjectId;
 
 public final class Player {
 
-    private ObjectId id;
+    private String id;
     private String name;
     private String initials;
     private Integer handicap;
 
-
-    // Needs here for the mongoDB conversion
-    public Player() {
-    }
-
-    public Player(String name, String initials, Integer handicap) {
+    public Player(String id, String name, String initials, Integer handicap) {
+        this.id = id;
         this.name = name;
         this.initials = initials;
         this.handicap = handicap;
     }
 
     public Player(String name, String initials) {
+        new Player(id, name, initials, 10);
+    }
+
+    public void update(String name, String initials) {
+        // TODO: Add rules for updates.
+        // Only rule I can think is that initials need to be found in name. They also need to be capitalized
         this.name = name;
         this.initials = initials;
-        this.handicap = 10; // Default value
     }
 
-    public ObjectId getId() {
-        return id;
-    }
-
-    public Player setId(ObjectId id) {
-        this.id = id;
-        return this;
+    public String getId() {
+        return this.id;
     }
 
     public String getName() {
-        return name;
-    }
-
-    public Player setName(String name) {
-        this.name = name;
-        return this;
+        return this.name;
     }
 
     public String getInitials() {
-        return initials;
-    }
-
-    public Player setInitials(String initials) {
-        this.initials = initials;
-        return this;
+        return this.initials;
     }
 
     public Integer getHandicap() {
-        return handicap;
-    }
-
-    public Integer setHandicap(Integer handicap) {
-        this.handicap = handicap;
-        return handicap;
+        return this.handicap;
     }
 
     public void increaseHandicap() {

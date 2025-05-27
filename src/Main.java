@@ -1,37 +1,30 @@
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
-import com.mongodb.client.result.InsertOneResult;
-import org.bson.Document;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-import org.bson.types.ObjectId;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-
-import static com.mongodb.client.model.Filters.eq;
-import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
-import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 public class Main {
     public static void main(String[] args) {
 
-        // Gotta read up on this Pojo thing, it's weird
         ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
-        CodecRegistry pojoCodecRegistry = fromRegistries(MongoClientSettings.getDefaultCodecRegistry(),
-                fromProviders(PojoCodecProvider.builder().automatic(true).build()));
 
         MongoClientSettings clientSettings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
-                .codecRegistry(pojoCodecRegistry)
                 .build();
 
         try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
+            PlayerCollection playerCollection = new PlayerCollection(mongoClient);
+            Player player = new Player(playerCollection.GetNewId(), "Bob", "BO", 1);
+
+            String playerId = playerCollection.SetPlayer(player);
+
+            System.out.println(playerId);
+            Player player1 = playerCollection.GetPlayer(playerId);
+            System.out.println(player);
+            //playerCollection.DeletePlayer(playerId);
+
+            /*
             MongoDatabase db = mongoClient.getDatabase("foosball");
-            MongoCollection<Player> players = db.getCollection("players", Player.class);
+            MongoCollection<Document> players = db.getCollection("players");
 
             Player newPlayer = new Player("Alexander", "AB", 10);
             InsertOneResult result = players.insertOne(newPlayer);
@@ -68,6 +61,8 @@ public class Main {
             // Lock down which updates can be made
             // Create the REST API
             // Create the match DB
+
+             */
         }
         }
     }
