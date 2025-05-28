@@ -1,5 +1,4 @@
 public class Match {
-    private String id;
     private Team homeTeam;
     private Team awayTeam;
     private Integer homeScore = null;
@@ -11,17 +10,15 @@ public class Match {
         TIE
     }
 
-    public Match(String id, Team homeTeam, Team awayTeam) {
+    public Match(Team homeTeam, Team awayTeam, Integer homeScore, Integer awayScore) {
         if(!homeTeam.isDistinctFromOtherTeam(awayTeam)){
             throw new IllegalArgumentException("Teams share at least one player");
         }
-        this.id = id;
         this.homeTeam= homeTeam;
         this.awayTeam= awayTeam;
-    }
+        this.homeScore = homeScore;
+        this.awayScore = awayScore;
 
-    public String getId() {
-        return id;
     }
 
     public Team getHomeTeam() {

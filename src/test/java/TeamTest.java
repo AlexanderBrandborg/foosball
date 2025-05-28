@@ -6,12 +6,12 @@ class TeamTest {
 
     @Test
     void isDistinctFromOtherTeam() {
-        Player player1 = new Player("1", "Test", "T", 10);
-        Player player2 = new Player("2", "Test", "T", 10);
+        StoredPlayer player1 = new StoredPlayer("1", "Test", "T", 10);
+        StoredPlayer player2 = new StoredPlayer("2", "Test", "T", 10);
         Team team1 = new Team(player1, player2);
 
-        Player player3 = new Player("3", "Test", "T", 10);
-        Player player4 = new Player("4", "Test", "T", 10);
+        StoredPlayer player3 = new StoredPlayer("3", "Test", "T", 10);
+        StoredPlayer player4 = new StoredPlayer("4", "Test", "T", 10);
         Team team2 = new Team(player3, player4);
 
         // Is distinct from team with different players. Distinct goes both ways
@@ -28,8 +28,8 @@ class TeamTest {
     }
     @Test
     void increaseHandicap() {
-        Player player1 = new Player("1", "Test", "T", 10);
-        Player player2 = new Player("2", "Test", "T", 10);
+        StoredPlayer player1 = new StoredPlayer("1", "Test", "T", 10);
+        StoredPlayer player2 = new StoredPlayer("2", "Test", "T", 10);
         Team team = new Team(player1, player2);
         team.IncreaseHandicap();
         assertEquals(player1.getHandicap(), 11);
@@ -38,8 +38,8 @@ class TeamTest {
 
     @Test
     void decreaseHandicap() {
-        Player player1 = new Player("1", "Test", "T", 10);
-        Player player2 = new Player("2", "Test", "T", 10);
+        StoredPlayer player1 = new StoredPlayer("1", "Test", "T", 10);
+        StoredPlayer player2 = new StoredPlayer("2", "Test", "T", 10);
         Team team = new Team(player1, player2);
         team.DecreaseHandicap();
         assertEquals(player1.getHandicap(), 9);

@@ -5,21 +5,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class MatchTest {
 
-    private Player player1, player2, player3, player4;
+    private StoredPlayer player1, player2, player3, player4;
     private Team homeTeam, awayTeam;
-    private Match match;
+    private StoredMatch match;
 
     @Before
     public void beforeFunction(){
-        this.player1 = new Player("1", "Test", "T", 10);
-        this.player2 = new Player("2", "Test", "T", 10);
-        this.player3 = new Player("3", "Test", "T", 10);
-        this.player4 = new Player("4", "Test", "T", 10);
+        this.player1 = new StoredPlayer("1", "Test", "T", 10);
+        this.player2 = new StoredPlayer("2", "Test", "T", 10);
+        this.player3 = new StoredPlayer("3", "Test", "T", 10);
+        this.player4 = new StoredPlayer("4", "Test", "T", 10);
 
         this.homeTeam = new Team(player1, player2);
         this.awayTeam = new Team(player3, player4);
 
-        this.match = new Match("1", homeTeam, awayTeam);
+        this.match = new StoredMatch("1", homeTeam, awayTeam);
     }
 
     @Test
@@ -30,13 +30,13 @@ public class MatchTest {
 
     @Test
     public void testTeamCantPlayItself() {
-        assertThrows(IllegalArgumentException.class, () -> new Match("1", homeTeam, homeTeam));
+        assertThrows(IllegalArgumentException.class, () -> new StoredMatch("1", homeTeam, homeTeam));
     }
 
     @Test
     public void testPlayerCantBeOnBothTeams() {
         Team teamAlsoWithPlayer1 = new Team(player1, player3);
-        assertThrows(IllegalArgumentException.class, () -> new Match("1", homeTeam, teamAlsoWithPlayer1));
+        assertThrows(IllegalArgumentException.class, () -> new StoredMatch("1", homeTeam, teamAlsoWithPlayer1));
     }
 
     @Test

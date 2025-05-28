@@ -13,13 +13,25 @@ public class Main {
 
         try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
             PlayerCollection playerCollection = new PlayerCollection(mongoClient);
-            Player player = new Player(playerCollection.GetNewId(), "Bob", "BO", 1);
+            MatchCollection matchCollection = new MatchCollection(mongoClient);
 
-            String playerId = playerCollection.SetPlayer(player);
+            Player player1 = new Player("Alex", "A", 1);
+            Player player2 = new Player("Anders", "AN", 1);
+            Player player3 = new Player("Bob", "BO", 1);
+            Player player4 = new Player("Bobbers", "BOB", 1);
 
-            System.out.println(playerId);
-            Player player1 = playerCollection.GetPlayer(playerId);
-            System.out.println(player);
+            String player1Id = playerCollection.CreatePlayer(player1);
+            String player2Id = playerCollection.CreatePlayer(player2);
+            String player3Id = playerCollection.CreatePlayer(player3);
+            String player4Id = playerCollection.CreatePlayer(player4);
+
+            String matchId = matchCollection.CreateMatch(player1Id, player2Id, player3Id, player4Id, null, null);
+            StoredMatch match = matchCollection.getMatch(matchId);
+            match.recordOutcome(2, 1);
+            matchCollection.UpdateMatch(match);
+
+
+
             //playerCollection.DeletePlayer(playerId);
 
             /*

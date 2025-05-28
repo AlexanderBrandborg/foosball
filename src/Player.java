@@ -4,21 +4,14 @@ import java.util.Objects;
 
 public class Player {
 
-    private String id;
     private String name;
     private String initials;
     private Integer handicap;
 
-    public Player(String id, String name, String initials, Integer handicap) {
-        this.id = id;
+    public Player(String name, String initials, Integer handicap) {
         this.name = name;
         this.initials = initials;
         this.handicap = handicap;
-    }
-
-    // TODO: id is always null here
-    public Player(String name, String initials) {
-        new Player(id, name, initials, 10);
     }
 
     public void update(String name, String initials) {
@@ -27,11 +20,6 @@ public class Player {
         this.name = name;
         this.initials = initials;
     }
-
-    public String getId() {
-        return this.id;
-    }
-
     public String getName() {
         return this.name;
     }
@@ -53,7 +41,4 @@ public class Player {
     }
 
     // TODO: Overwirte getHash as well
-    public boolean equals(Player otherPlayer) {
-        return Objects.equals(this.getId(), otherPlayer.getId());
-    }
 }

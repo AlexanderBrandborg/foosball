@@ -1,6 +1,8 @@
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
@@ -13,8 +15,8 @@ import static com.mongodb.client.model.Filters.eq;
 public class PlayerCollection {
     private MongoCollection<Document> players;
 
-    private Player doc2Player(Document playerDoc) {
-        return new Player(playerDoc.getObjectId("_id").toString(), playerDoc.getString("name"), playerDoc.getString("initials"), playerDoc.getInteger("handicap"));
+    private StoredPlayer doc2Player(Document playerDoc) {
+        return new StoredPlayer(playerDoc.getObjectId("_id").toString(), playerDoc.getString("name"), playerDoc.getString("initials"), playerDoc.getInteger("handicap"));
     }
 
     private List<Player> docs2Players(Iterable<Document> playerDocs) {
@@ -28,26 +30,44 @@ public class PlayerCollection {
         this.players = mongo.getDatabase("foosball").getCollection("players");
     }
 
-    public String GetNewId() {
-        return  ObjectId.get().toString();
-    }
-
-    public String SetPlayer(Player player) {
-        Document doc = new Document("_id", new ObjectId(player.getId()))
+    public String CreatePlayer(Player player) {
+        Document doc = new Document()
                 .append ("name", player.getName())
                 .append("initials", player.getInitials())
                 .append("handicap", player.getHandicap());
 
-        // TODO: Check result here
         InsertOneResult result = players.insertOne(doc);
-        return Objects.requireNonNull(result.getInsertedId()).asObjectId().getValue().toString();
+
+        if(result.wasAcknowledged()){
+            return Objects.requireNonNull(result.getInsertedId()).asObjectId().getValue().toString();
+        }
+        else {
+            throw new MongoException("Insertion failed");
+        }
     }
 
-    public Player GetPlayer(String id) {
-        Document playerDoc = players.find(eq("_id", new ObjectId(id))).first();
-        // TODO: Better handle id not found
-        assert playerDoc != null;
+    public void UpdatePlayer(StoredPlayer player) {
+        Document setData = new Document()
+                .append ("name", player.getName())
+                .append("initials", player.getInitials())
+                .append("handicap", player.getHandicap());
 
+        Document update = new Document();
+        update.append("$set", setData);
+
+        UpdateResult result = players.updateOne(eq("_id", new ObjectId(player.getId())), update);
+
+        // TODO: Since we allow for failed updates in some cases. Maybe move error handling out?
+        if(!result.wasAcknowledged()){
+            throw new MongoException("Update failed");
+        }
+    }
+
+    public StoredPlayer GetPlayer(String id) {
+        Document playerDoc = players.find(eq("_id", new ObjectId(id))).first();
+        if (playerDoc == null) {
+            return  null;
+        }
         return doc2Player(playerDoc);
     }
 

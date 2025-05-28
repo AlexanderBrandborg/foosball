@@ -1,10 +1,10 @@
 import java.util.Objects;
 
 public class Team {
-    public Player player1;
-    public Player player2;
+    public StoredPlayer player1;
+    public StoredPlayer player2;
 
-    public Team(Player player1, Player player2) {
+    public Team(StoredPlayer player1, StoredPlayer player2) {
         if (Objects.equals(player1.getId(), player2.getId())) {
             throw new IllegalArgumentException("Players have the same ID");
         }
