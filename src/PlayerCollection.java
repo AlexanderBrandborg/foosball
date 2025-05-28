@@ -6,9 +6,7 @@ import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -29,8 +27,8 @@ public class PlayerCollection {
         );
     }
 
-    private List<Player> docs2Players(Iterable<Document> playerDocs) {
-        List<Player> playerList = new ArrayList<>();
+    private List<StoredPlayer> docs2Players(Iterable<Document> playerDocs) {
+        List<StoredPlayer> playerList = new ArrayList<>();
         playerDocs.forEach(p -> playerList.add(doc2Player(p)));
         return playerList;
     }
@@ -77,19 +75,22 @@ public class PlayerCollection {
         return doc2Player(playerDoc);
     }
 
-    public List<Player> GetPlayerByName(String name) {
+    public List<StoredPlayer> GetPlayerByName(String name) {
         return this.docs2Players(players.find(eq(KEY_NAME, name)));
     }
 
-    public List<Player> GetPlayerByInitials(String initials) {
+    public List<StoredPlayer> GetPlayerByInitials(String initials) {
         return this.docs2Players(players.find(eq(KEY_INITIALS, initials)));
     }
 
-    public List<Player> GetPlayers() {
-        return this.docs2Players(players.find());
+    public List<StoredPlayer> GetPlayers() {
+        List<StoredPlayer> playerList = this.docs2Players(players.find());
+        Collections.sort(playerList, Comparator.comparing(StoredPlayer::getHandicap).reversed());
+        return playerList;
     }
 
     public void DeletePlayer(String id) {
+        // TODO: Check that player exists
         players.deleteOne(eq(KEY_ID, new ObjectId(id)));
     }
 }

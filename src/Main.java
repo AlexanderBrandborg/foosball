@@ -1,9 +1,9 @@
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static spark.Spark.*;
@@ -22,13 +22,8 @@ public class Main {
                 PlayerCollection playerCollection = new PlayerCollection(mongoClient);
                 response.type("application/json");
 
-                GsonBuilder builder = new GsonBuilder();
-                builder.registerTypeAdapter(Player.class, new
-                        PlayerDeserializer());
-                Gson gson = builder.create();
-
-                Player player = gson.fromJson(request.body(),
-                        Player.class);
+                PlayerInput playerInput = new Gson().fromJson(request.body(), PlayerInput.class);
+                Player player = new Player(playerInput);
 
                 String id = playerCollection.CreatePlayer(player);
                 return new Gson().toJson(id);
@@ -44,7 +39,6 @@ public class Main {
                 String id = req.params(":id");
                 StoredPlayer players = playerCollection.GetPlayer(id);
 
-                res.status(200);
                 res.type("application/json");
                 return new Gson().toJson(players);
             }
@@ -55,16 +49,41 @@ public class Main {
                 PlayerCollection playerCollection = new PlayerCollection(mongoClient);
 
                 res.type("application/json");
-                String id = req.params(":id");
-                List<Player> players = playerCollection.GetPlayers();
+                List<StoredPlayer> players = playerCollection.GetPlayers();
                 res.status(200);
                 res.type("application/json");
                 return new Gson().toJson(players);
             }
         });
 
-        // TODO: Search for player by name
-        // TODO: Search for player by initial
+        get("/players/search/", (req,res)->{
+            try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
+                PlayerCollection playerCollection = new PlayerCollection(mongoClient);
+                String name = req.queryParams("name");
+                String initials = req.queryParams("initials");
+
+                if(name == null && initials == null){
+                    res.status(200);
+                    return new Gson().toJson(new ArrayList<StoredPlayer>());
+                }
+                else if(name != null && initials == null){
+                    List<StoredPlayer> players = playerCollection.GetPlayerByName(name);
+                    res.status(200);
+                    res.type("application/json");
+                    return new Gson().toJson(players);
+                }
+                else if (name == null && initials != null){
+                    List<StoredPlayer> players = playerCollection.GetPlayerByInitials(initials);
+                    res.status(200);
+                    res.type("application/json");
+                    return new Gson().toJson(players);
+                }
+                else {
+                    res.status(400);
+                    return new Gson().toJson(new ArrayList<StoredPlayer>());
+                }
+            }
+        });
 
         delete("/players/:id", (req,res)-> {
             try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
@@ -78,24 +97,32 @@ public class Main {
                 return new Gson().toJson("");
             }});
 
+        post("/matches", (request, response) -> {
+            try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
+                MatchCollection matchCollection = new MatchCollection(mongoClient);
+                response.type("application/json");
 
-            /*
-            Player player1 = new Player("Alex", "A", 1);
-            Player player2 = new Player("Anders", "AN", 1);
-            Player player3 = new Player("Bob", "BO", 1);
-            Player player4 = new Player("Bobbers", "BOB", 1);
+                MatchInput matchInput = new Gson().fromJson(request.body(), MatchInput.class);
+                String id = matchCollection.CreateMatch(matchInput.homePlayer1Id, matchInput.homePlayer2Id, matchInput.awayPlayer1Id, matchInput.awayPlayer2Id, null, null);
 
-            String player1Id = playerCollection.CreatePlayer(player1);
-            String player2Id = playerCollection.CreatePlayer(player2);
-            String player3Id = playerCollection.CreatePlayer(player3);
-            String player4Id = playerCollection.CreatePlayer(player4);
+                return new Gson().toJson(id);
+            }
+        });
 
-            String matchId = matchCollection.CreateMatch(player1Id, player2Id, player3Id, player4Id, null, null);
-            StoredMatch match = matchCollection.getMatch(matchId);
-            match.recordOutcome(2, 1);
-            matchCollection.UpdateMatch(match);
+        patch("/matches/:id", (request, response) -> {
+            try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
+                MatchCollection matchCollection = new MatchCollection(mongoClient);
+                ScoreInput scoreInput = new Gson().fromJson(request.body(), ScoreInput.class);
 
-             */
+                String id = request.params(":id");
+                StoredMatch match = matchCollection.getMatch(id);
 
+                response.type("application/json");
+                match.recordOutcome(scoreInput.homeScore, scoreInput.awayScore);
+                matchCollection.UpdateMatch(match);
+
+                return new Gson().toJson(id);
+            }
+        });
     }
 }

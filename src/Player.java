@@ -22,17 +22,27 @@ public class Player {
     }
 
 
-    public Player(String name, String initials, int handicap) {
+    public Player(String name, String initials, Integer handicap) {
         if(!areInitialsAndNameLegal(name, initials)) {
             throw new IllegalArgumentException();
         }
         this.name = name;
         this.initials = initials;
-        this.handicap = handicap;
+
+        if(handicap == null) {
+            this.handicap = 10;
+        }else {
+            this.handicap = handicap;
+        }
     }
 
+    // TODO: Maybe get rid of this constructor
     public Player(String name, String initials) {
-        this(name, initials, 10);
+        this(name, initials, null);
+    }
+
+    public Player(PlayerInput playerInput) {
+        this(playerInput.name, playerInput.initials, playerInput.handicap);
     }
 
     public String getName() {
