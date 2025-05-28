@@ -11,6 +11,14 @@ import java.util.Objects;
 import static com.mongodb.client.model.Filters.eq;
 
 public class MatchCollection {
+    private static final String KEY_ID = "_id";
+    private static final String KEY_HOMEPLAYER1ID = "homePlayer1Id";
+    private static final String KEY_HOMEPLAYER2ID = "homePlayer2Id";
+    private static final String KEY_AWAYPLAYER1ID = "awayPlayer1Id";
+    private static final String KEY_AWAYPLAYER2ID = "awayPlayer2Id";
+    private static final String KEY_HOMESCORE = "homeScore";
+    private static final String KEY_AWAYSCORE = "awayScore";
+
     private PlayerCollection players; // This collection needs knowledge about players
     private MongoCollection<Document> matches;
 
@@ -19,39 +27,16 @@ public class MatchCollection {
         this.matches = mongo.getDatabase("foosball").getCollection("matches");
     }
 
-    private Document match2Doc(Match match){
-        return new Document()
-                .append ("homePlayer1Id", match.getHomeTeam().player1.getId())
-                .append ("homePlayer2Id", match.getHomeTeam().player2.getId())
-                .append ("awayPlayer1Id", match.getAwayTeam().player1.getId())
-                .append ("awayPlayer2Id", match.getAwayTeam().player2.getId())
-                .append("homeScore", match.getHomeScore())
-                .append("awayScore", match.getAwayScore());
-    }
-
-    private Document match2Doc(StoredMatch match){
-        return new Document()
-                .append("_id", match.getId())
-                .append ("homePlayer1Id", match.getHomeTeam().player1.getId())
-                .append ("homePlayer2Id", match.getHomeTeam().player2.getId())
-                .append ("awayPlayer1Id", match.getAwayTeam().player1.getId())
-                .append ("awayPlayer2Id", match.getAwayTeam().player2.getId())
-                .append("homeScore", match.getHomeScore())
-                .append("awayScore", match.getAwayScore());
-    }
-
-
-    // TODO: Make it more explicit that this func actually does a lookup?
     private StoredMatch doc2Match(Document doc){
-        String id = doc.getObjectId("_id").toString();
-        StoredPlayer homePlayer1 = players.GetPlayer(doc.getString("homePlayer1Id"));
-        StoredPlayer homePlayer2 = players.GetPlayer(doc.getString("homePlayer2Id"));
-        StoredPlayer awayPlayer1 = players.GetPlayer(doc.getString("awayPlayer1Id"));
-        StoredPlayer awayPlayer2 = players.GetPlayer(doc.getString("awayPlayer2Id"));
-        Integer homeScore = doc.getInteger("homeScore");
-        Integer awayScore = doc.getInteger("awayScore");
+        String id = doc.getObjectId(KEY_ID).toString();
+        StoredPlayer homePlayer1 = players.GetPlayer(doc.getString(KEY_HOMEPLAYER1ID));
+        StoredPlayer homePlayer2 = players.GetPlayer(doc.getString(KEY_HOMEPLAYER2ID));
+        StoredPlayer awayPlayer1 = players.GetPlayer(doc.getString(KEY_AWAYPLAYER1ID));
+        StoredPlayer awayPlayer2 = players.GetPlayer(doc.getString(KEY_AWAYPLAYER2ID));
+        Integer homeScore = doc.getInteger(KEY_HOMESCORE);
+        Integer awayScore = doc.getInteger(KEY_AWAYSCORE);
 
-        return  new StoredMatch(id, new Team(homePlayer1, homePlayer2), new Team(awayPlayer1, awayPlayer2), homeScore, awayScore);
+        return new StoredMatch(id, new Team(homePlayer1, homePlayer2), new Team(awayPlayer1, awayPlayer2), homeScore, awayScore);
     }
 
     public String CreateMatch(String homePlayer1Id, String homePlayer2Id, String awayPlayer1Id, String awayPlayer2Id, Integer homeScore, Integer awayScore){
@@ -64,8 +49,16 @@ public class MatchCollection {
             throw new NullPointerException("homePlayer1 or homePlayer2 or awayPlayer1 or awayPlayer2 is null");
         }
 
-        Match match = new Match(new Team(homePlayer1, homePlayer2), new Team(awayPlayer1, awayPlayer2), homeScore, awayScore);
-        InsertOneResult result = matches.insertOne(match2Doc(match));
+        Match match = new Match(new Team(homePlayer1, homePlayer2), new Team(awayPlayer1, awayPlayer2));
+        Document doc =  new Document()
+                .append (KEY_HOMEPLAYER1ID, match.getHomeTeam().player1.getId())
+                .append (KEY_HOMEPLAYER2ID, match.getHomeTeam().player2.getId())
+                .append (KEY_AWAYPLAYER1ID, match.getAwayTeam().player1.getId())
+                .append (KEY_AWAYPLAYER2ID, match.getAwayTeam().player2.getId())
+                .append(KEY_HOMESCORE, null)
+                .append(KEY_AWAYSCORE, null);
+
+        InsertOneResult result = matches.insertOne(doc);
 
         if(result.wasAcknowledged()){
             return Objects.requireNonNull(result.getInsertedId()).asObjectId().getValue().toString();
@@ -76,7 +69,7 @@ public class MatchCollection {
     }
 
     public void UpdateMatch(StoredMatch match){
-        // TODO: Roll these into a single update to the db?
+        // TODO: Make these updates to the DB Atomic
 
         // Reflects changes in handicap.
         players.UpdatePlayer(match.getHomeTeam().player1);
@@ -84,14 +77,13 @@ public class MatchCollection {
         players.UpdatePlayer(match.getAwayTeam().player1);
         players.UpdatePlayer(match.getAwayTeam().player2);
 
+        // Then update the match with new scores
         Document setData = new Document()
                 .append("homeScore", match.getHomeScore())
                 .append("awayScore", match.getAwayScore());
 
         Document update = new Document();
         update.append("$set", setData);
-
-        // TODO: Roll back player changes. If the match update fails?
         UpdateResult result = matches.updateOne(eq("_id", new ObjectId(match.getId())), update);
         if(!result.wasAcknowledged()){
             throw new MongoException("Insertion failed");
@@ -104,7 +96,5 @@ public class MatchCollection {
             return  null;
         }
         return doc2Match(matchDoc);
-
     }
-
 }

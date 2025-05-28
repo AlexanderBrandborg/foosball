@@ -19,7 +19,7 @@ public class MatchTest {
         this.homeTeam = new Team(player1, player2);
         this.awayTeam = new Team(player3, player4);
 
-        this.match = new StoredMatch("1", homeTeam, awayTeam);
+        this.match = new StoredMatch("1", homeTeam, awayTeam, null, null);
     }
 
     @Test
@@ -30,13 +30,13 @@ public class MatchTest {
 
     @Test
     public void testTeamCantPlayItself() {
-        assertThrows(IllegalArgumentException.class, () -> new StoredMatch("1", homeTeam, homeTeam));
+        assertThrows(IllegalArgumentException.class, () -> new StoredMatch("1", homeTeam, homeTeam, null, null));
     }
 
     @Test
     public void testPlayerCantBeOnBothTeams() {
         Team teamAlsoWithPlayer1 = new Team(player1, player3);
-        assertThrows(IllegalArgumentException.class, () -> new StoredMatch("1", homeTeam, teamAlsoWithPlayer1));
+        assertThrows(IllegalArgumentException.class, () -> new StoredMatch("1", homeTeam, teamAlsoWithPlayer1, null, null));
     }
 
     @Test

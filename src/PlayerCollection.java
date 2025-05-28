@@ -13,10 +13,20 @@ import java.util.Objects;
 import static com.mongodb.client.model.Filters.eq;
 
 public class PlayerCollection {
+    private static final String KEY_ID = "_id";
+    private static final String KEY_NAME = "name";
+    private static final String KEY_INITIALS = "initials";
+    private static final String KEY_HANDICAP = "handicap";
+
     private MongoCollection<Document> players;
 
     private StoredPlayer doc2Player(Document playerDoc) {
-        return new StoredPlayer(playerDoc.getObjectId("_id").toString(), playerDoc.getString("name"), playerDoc.getString("initials"), playerDoc.getInteger("handicap"));
+        return new StoredPlayer(
+                playerDoc.getObjectId(KEY_ID).toString(),
+                playerDoc.getString(KEY_NAME),
+                playerDoc.getString(KEY_INITIALS),
+                playerDoc.getInteger(KEY_HANDICAP)
+        );
     }
 
     private List<Player> docs2Players(Iterable<Document> playerDocs) {
@@ -26,15 +36,14 @@ public class PlayerCollection {
     }
 
     public PlayerCollection(MongoClient mongo) {
-        // TODO: Check whether object is in correct format?
         this.players = mongo.getDatabase("foosball").getCollection("players");
     }
 
     public String CreatePlayer(Player player) {
         Document doc = new Document()
-                .append ("name", player.getName())
-                .append("initials", player.getInitials())
-                .append("handicap", player.getHandicap());
+                .append (KEY_NAME, player.getName())
+                .append(KEY_INITIALS, player.getInitials())
+                .append(KEY_HANDICAP, player.getHandicap());
 
         InsertOneResult result = players.insertOne(doc);
 
@@ -46,25 +55,22 @@ public class PlayerCollection {
         }
     }
 
-    public void UpdatePlayer(StoredPlayer player) {
+    public Boolean UpdatePlayer(StoredPlayer player) {
         Document setData = new Document()
-                .append ("name", player.getName())
-                .append("initials", player.getInitials())
-                .append("handicap", player.getHandicap());
+                .append (KEY_NAME, player.getName())
+                .append(KEY_INITIALS, player.getInitials())
+                .append(KEY_HANDICAP, player.getHandicap());
 
         Document update = new Document();
         update.append("$set", setData);
 
-        UpdateResult result = players.updateOne(eq("_id", new ObjectId(player.getId())), update);
+        UpdateResult result = players.updateOne(eq(KEY_ID, new ObjectId(player.getId())), update);
 
-        // TODO: Since we allow for failed updates in some cases. Maybe move error handling out?
-        if(!result.wasAcknowledged()){
-            throw new MongoException("Update failed");
-        }
+        return result.wasAcknowledged();
     }
 
     public StoredPlayer GetPlayer(String id) {
-        Document playerDoc = players.find(eq("_id", new ObjectId(id))).first();
+        Document playerDoc = players.find(eq(KEY_ID, new ObjectId(id))).first();
         if (playerDoc == null) {
             return  null;
         }
@@ -72,11 +78,11 @@ public class PlayerCollection {
     }
 
     public List<Player> GetPlayerByName(String name) {
-        return this.docs2Players(players.find(eq("name", name)));
+        return this.docs2Players(players.find(eq(KEY_NAME, name)));
     }
 
     public List<Player> GetPlayerByInitials(String initials) {
-        return this.docs2Players(players.find(eq("initials", initials)));
+        return this.docs2Players(players.find(eq(KEY_INITIALS, initials)));
     }
 
     public List<Player> GetPlayers() {
@@ -84,6 +90,6 @@ public class PlayerCollection {
     }
 
     public void DeletePlayer(String id) {
-        players.deleteOne(eq("_id", new ObjectId(id)));
+        players.deleteOne(eq(KEY_ID, new ObjectId(id)));
     }
 }
