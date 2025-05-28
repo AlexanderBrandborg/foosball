@@ -2,7 +2,7 @@ public class Player {
 
     protected String name;
     protected String initials;
-    protected Integer handicap;
+    protected int handicap;
 
     protected boolean areInitialsAndNameLegal(String name, String initials) {
         // Test for empty strings
@@ -22,7 +22,7 @@ public class Player {
     }
 
 
-    public Player(String name, String initials, Integer handicap) {
+    public Player(String name, String initials, int handicap) {
         if(!areInitialsAndNameLegal(name, initials)) {
             throw new IllegalArgumentException();
         }
