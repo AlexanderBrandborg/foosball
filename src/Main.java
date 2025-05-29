@@ -137,6 +137,5 @@ public class Main {
             response.status(e.statusCode);
             response.body(e.getMessage());
         });
-
     }
 }

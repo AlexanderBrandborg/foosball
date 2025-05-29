@@ -38,17 +38,19 @@ public class PlayerCollection {
         return playerList;
     }
 
+    private Document player2Doc(Player p) throws FoosballException {
+        return new Document()
+                .append (KEY_NAME, p.getName())
+                .append(KEY_INITIALS, p.getInitials())
+                .append(KEY_HANDICAP, p.getHandicap());
+    }
+
     public PlayerCollection(MongoClient mongo) {
         this.players = mongo.getDatabase("foosball").getCollection("players");
     }
 
-    public String CreatePlayer(Player player) {
-        Document doc = new Document()
-                .append (KEY_NAME, player.getName())
-                .append(KEY_INITIALS, player.getInitials())
-                .append(KEY_HANDICAP, player.getHandicap());
-
-        InsertOneResult result = players.insertOne(doc);
+    public String CreatePlayer(Player player) throws FoosballException {
+        InsertOneResult result = players.insertOne(player2Doc(player));
 
         if(result.wasAcknowledged()){
             return Objects.requireNonNull(result.getInsertedId()).asObjectId().getValue().toString();
@@ -58,12 +60,8 @@ public class PlayerCollection {
         }
     }
 
-    public void UpdatePlayer(StoredPlayer player) {
-        Document setData = new Document()
-                .append (KEY_NAME, player.getName())
-                .append(KEY_INITIALS, player.getInitials())
-                .append(KEY_HANDICAP, player.getHandicap());
-
+    public void UpdatePlayer(StoredPlayer player) throws FoosballException {
+        Document setData = player2Doc(player);
         Document update = new Document();
         update.append("$set", setData);
 

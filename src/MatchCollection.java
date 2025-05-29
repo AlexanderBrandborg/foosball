@@ -21,8 +21,8 @@ public class MatchCollection {
     private static final String KEY_HOMESCORE = "homeScore";
     private static final String KEY_AWAYSCORE = "awayScore";
 
-    private PlayerCollection players; // This collection needs knowledge about players
-    private MongoCollection<Document> matches;
+    private final PlayerCollection players;
+    private final MongoCollection<Document> matches;
 
     public MatchCollection(MongoClient mongo, PlayerCollection playerCollection){
         this.players = playerCollection;
@@ -71,7 +71,7 @@ public class MatchCollection {
         }
     }
 
-    public void UpdateMatch(StoredMatch match){
+    public void UpdateMatch(StoredMatch match) throws FoosballException {
         List<StoredPlayer> playerUpdateList = new ArrayList<>();
         playerUpdateList.add(match.getHomeTeam().player1);
         playerUpdateList.add(match.getHomeTeam().player2);
@@ -80,7 +80,9 @@ public class MatchCollection {
 
         // ensure we don't update a deleted player
         playerUpdateList.removeIf(Objects::isNull);
-        playerUpdateList.forEach(player -> players.UpdatePlayer(player));
+        for (StoredPlayer player : playerUpdateList) {
+            players.UpdatePlayer(player);
+        }
 
         // Then update the match with new scores
         Document setData = new Document()

@@ -1,7 +1,5 @@
-import java.util.Objects;
-
 public class StoredPlayer extends Player {
-    private String id;
+    private final String id;
 
     public StoredPlayer(String id, String name, String initials, Integer handicap) throws FoosballException {
         super(name, initials, handicap);
