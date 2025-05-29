@@ -43,6 +43,32 @@ public class Main {
             }
         });
 
+        get("/players", (req,res)->{
+            try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
+                PlayerCollection playerCollection = new PlayerCollection(mongoClient);
+                String name = req.queryParams("name");
+                String initials = req.queryParams("initials");
+                List<StoredPlayer> players = playerCollection.GetSortedPlayers(name, initials);
+                return new Gson().toJson(players);
+            }
+        });
+
+        patch("/players/:id", (request, response) -> {
+            try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
+                PlayerCollection playerCollection = new PlayerCollection(mongoClient);
+                PlayerUpdateInput playerUpdateInput = new Gson().fromJson(request.body(), PlayerUpdateInput.class);
+                String id = request.params(":id");
+                StoredPlayer player = playerCollection.GetPlayer(id);
+                if(player == null){
+                    throw  new FoosballException("Player not found", 404);
+                }
+
+                player.update(playerUpdateInput.name, playerUpdateInput.initials);
+                playerCollection.UpdatePlayer(player);
+                return new Gson().toJson(id);
+            }
+        });
+
         get("/players/:id", (req,res)->{
             try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
                 PlayerCollection playerCollection = new PlayerCollection(mongoClient);
@@ -54,18 +80,6 @@ public class Main {
                 return new Gson().toJson(player);
             }
         });
-
-        get("/players", (req,res)->{
-            try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
-                PlayerCollection playerCollection = new PlayerCollection(mongoClient);
-                String name = req.queryParams("name");
-                String initials = req.queryParams("initials");
-                List<StoredPlayer> players = playerCollection.GetSortedPlayers(name, initials);
-                return new Gson().toJson(players);
-            }
-        });
-
-        // TODO: Create patch for updating a player
 
         delete("/players/:id", (req,res)-> {
             try (MongoClient mongoClient = MongoClients.create(clientSettings)) {

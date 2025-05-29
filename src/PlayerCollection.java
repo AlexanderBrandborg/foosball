@@ -56,7 +56,7 @@ public class PlayerCollection {
         }
     }
 
-    public Boolean UpdatePlayer(StoredPlayer player) {
+    public void UpdatePlayer(StoredPlayer player) {
         Document setData = new Document()
                 .append (KEY_NAME, player.getName())
                 .append(KEY_INITIALS, player.getInitials())
@@ -67,7 +67,9 @@ public class PlayerCollection {
 
         UpdateResult result = players.updateOne(eq(KEY_ID, new ObjectId(player.getId())), update);
 
-        return result.wasAcknowledged();
+        if (!result.wasAcknowledged()){
+            throw new MongoException("Update failed");
+        }
     }
 
     private void isValidId(String id) throws FoosballException {
@@ -83,14 +85,6 @@ public class PlayerCollection {
             return  null;
         }
         return doc2Player(playerDoc);
-    }
-
-    public List<StoredPlayer> GetPlayerByName(String name) throws FoosballException {
-        return this.docs2Players(players.find(eq(KEY_NAME, name)));
-    }
-
-    public List<StoredPlayer> GetPlayerByInitials(String initials) throws FoosballException {
-        return this.docs2Players(players.find(eq(KEY_INITIALS, initials)));
     }
 
     public List<StoredPlayer> GetSortedPlayers(String name, String initials) throws FoosballException {

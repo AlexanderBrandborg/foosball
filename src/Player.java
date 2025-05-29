@@ -22,8 +22,6 @@ public class Player {
 
 
     public Player(String name, String initials, Integer handicap) throws FoosballException {
-
-
         if(name == null || name.trim().isEmpty()) {
             throw new FoosballException("Player name cannot be null or empty", 400);
         }

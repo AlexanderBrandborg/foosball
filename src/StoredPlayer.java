@@ -12,12 +12,15 @@ public class StoredPlayer extends Player {
         return id;
     }
 
-    public void update(String name, String initials) {
-        if(!super.areInitialsAndNameLegal(name, initials)) {
-            throw new IllegalArgumentException();
+    public void update(String name, String initials) throws FoosballException {
+        String newName = (name != null && !name.isEmpty()) ? name : this.getName();
+        String newInitials = (initials != null && !initials.isEmpty()) ? initials : this.getInitials();
+
+        if(!super.areInitialsAndNameLegal(newName, newInitials)) {
+            throw new FoosballException("Initials are not contained within name", 400);
         }
-        super.name = name;
-        super.initials = initials;
+        super.name = newName;
+        super.initials = newInitials;
     }
 
     public void increaseHandicap() {
