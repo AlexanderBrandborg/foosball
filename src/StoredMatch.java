@@ -4,7 +4,7 @@ public class StoredMatch extends Match {
     private Integer homeScore;
 
 
-    public StoredMatch(String id, Team homeTeam, Team awayTeam, Integer homeScore, Integer AwayScore) {
+    public StoredMatch(String id, Team homeTeam, Team awayTeam, Integer homeScore, Integer AwayScore) throws FoosballException {
         super(homeTeam, awayTeam);
         this.id = id;
         this.homeScore = homeScore;
@@ -63,13 +63,13 @@ public class StoredMatch extends Match {
         updateHandicaps(newOutcome);
     }
 
-    public void recordOutcome(Integer homeScore, Integer awayScore) {
+    public void recordOutcome(Integer homeScore, Integer awayScore) throws FoosballException {
         if (homeScore == null || awayScore == null) {
-            throw new IllegalArgumentException("homeScore and awayScore must not be null");
+            throw new FoosballException("homeScore and awayScore must not be null", 400);
         }
 
-        if (0 <= homeScore || 0 <= awayScore) {
-            throw new IllegalArgumentException("homeScore and awayScore must be 0 or larger");
+        if (homeScore < 0 || awayScore < 0) {
+            throw new FoosballException("homeScore and awayScore must be 0 or larger", 400);
         }
 
         Outcome outcome = this.getOutcome(homeScore, awayScore);

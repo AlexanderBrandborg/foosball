@@ -30,17 +30,17 @@ public class MatchTest {
 
     @Test
     public void testTeamCantPlayItself() {
-        assertThrows(IllegalArgumentException.class, () -> new StoredMatch("1", homeTeam, homeTeam, null, null));
+        assertThrows(FoosballException.class, () -> new StoredMatch("1", homeTeam, homeTeam, null, null));
     }
 
     @Test
     public void testPlayerCantBeOnBothTeams() {
         Team teamAlsoWithPlayer1 = new Team(player1, player3);
-        assertThrows(IllegalArgumentException.class, () -> new StoredMatch("1", homeTeam, teamAlsoWithPlayer1, null, null));
+        assertThrows(FoosballException.class, () -> new StoredMatch("1", homeTeam, teamAlsoWithPlayer1, null, null));
     }
 
     @Test
-    public void testHomeWin() {
+    public void testHomeWin() throws FoosballException {
         match.recordOutcome(5, 4);
         assertEquals(player1.getHandicap(), 11);
         assertEquals(player2.getHandicap(), 11);
@@ -49,7 +49,7 @@ public class MatchTest {
     }
 
     @Test
-    public void testAwayWin() {
+    public void testAwayWin() throws FoosballException {
         match.recordOutcome(4, 5);
         assertEquals(player1.getHandicap(), 9);
         assertEquals(player2.getHandicap(), 9);
@@ -58,7 +58,7 @@ public class MatchTest {
     }
 
     @Test
-    public void testTieWin() {
+    public void testTieWin() throws FoosballException {
         match.recordOutcome(5, 5);
         assertEquals(player1.getHandicap(), 10);
         assertEquals(player2.getHandicap(), 10);
@@ -67,7 +67,7 @@ public class MatchTest {
     }
 
     @Test
-    public void testHomeWinThenHome() {
+    public void testHomeWinThenHome() throws FoosballException {
         match.recordOutcome(5, 4);
         match.recordOutcome(2, 1);
         assertEquals(player1.getHandicap(), 11);
@@ -77,7 +77,7 @@ public class MatchTest {
     }
 
     @Test
-    public void testHomeWinThenAway() {
+    public void testHomeWinThenAway() throws FoosballException {
         match.recordOutcome(5, 4);
         match.recordOutcome(4, 5);
         assertEquals(player1.getHandicap(), 9);
@@ -87,7 +87,7 @@ public class MatchTest {
     }
 
     @Test
-    public void testHomeWinThenTie() {
+    public void testHomeWinThenTie() throws FoosballException {
         match.recordOutcome(5, 4);
         match.recordOutcome(4, 4);
         assertEquals(player1.getHandicap(), 10);

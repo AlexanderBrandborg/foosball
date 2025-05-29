@@ -8,9 +8,9 @@ public class Match {
         TIE
     }
 
-    public Match(Team homeTeam, Team awayTeam) {
+    public Match(Team homeTeam, Team awayTeam) throws FoosballException {
         if(!homeTeam.isDistinctFromOtherTeam(awayTeam)){
-            throw new IllegalArgumentException("Teams share at least one player");
+            throw new FoosballException("Teams share at least one player", 400);
         }
         this.homeTeam= homeTeam;
         this.awayTeam= awayTeam;
