@@ -1,4 +1,4 @@
 public class ScoreInput {
-    int homeScore;
-    int awayScore;
+    Integer homeScore;
+    Integer awayScore;
 }

@@ -27,9 +27,4 @@ public class StoredPlayer extends Player {
     public void decreaseHandicap() {
         handicap -= 1;
     }
-
-    // TODO: Overwrite getHash as well?
-    public boolean equals(StoredPlayer otherPlayer) {
-        return Objects.equals(this.getId(), otherPlayer.getId());
-    }
 }

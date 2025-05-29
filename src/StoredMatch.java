@@ -63,7 +63,15 @@ public class StoredMatch extends Match {
         updateHandicaps(newOutcome);
     }
 
-    public void recordOutcome(int homeScore, int awayScore) {
+    public void recordOutcome(Integer homeScore, Integer awayScore) {
+        if (homeScore == null || awayScore == null) {
+            throw new IllegalArgumentException("homeScore and awayScore must not be null");
+        }
+
+        if (0 <= homeScore || 0 <= awayScore) {
+            throw new IllegalArgumentException("homeScore and awayScore must be 0 or larger");
+        }
+
         Outcome outcome = this.getOutcome(homeScore, awayScore);
         boolean noScoresRegisteredYet = this.homeScore == null && this.awayScore == null;
         if(noScoresRegisteredYet) {

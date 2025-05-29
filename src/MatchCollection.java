@@ -39,7 +39,7 @@ public class MatchCollection {
         return new StoredMatch(id, new Team(homePlayer1, homePlayer2), new Team(awayPlayer1, awayPlayer2), homeScore, awayScore);
     }
 
-    public String CreateMatch(String homePlayer1Id, String homePlayer2Id, String awayPlayer1Id, String awayPlayer2Id, Integer homeScore, Integer awayScore){
+    public String CreateMatch(String homePlayer1Id, String homePlayer2Id, String awayPlayer1Id, String awayPlayer2Id){
         StoredPlayer homePlayer1 = players.GetPlayer(homePlayer1Id);
         StoredPlayer homePlayer2 = players.GetPlayer(homePlayer2Id);
         StoredPlayer awayPlayer1 = players.GetPlayer(awayPlayer1Id);

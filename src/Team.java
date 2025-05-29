@@ -13,8 +13,9 @@ public class Team {
     }
 
     public Boolean isDistinctFromOtherTeam(Team otherTeam) {
-        return this.player1 != otherTeam.player1 && this.player1 != otherTeam.player2
-                && this.player2 != otherTeam.player1 && this.player2 != otherTeam.player2;
+        // TODO: Maybe just update the equals for StoredPlayer?
+        return !Objects.equals(this.player1.getId(), otherTeam.player1.getId()) && !Objects.equals(this.player1.getId(), otherTeam.player2.getId())
+                && !Objects.equals(this.player2.getId(), otherTeam.player1.getId()) && !Objects.equals(this.player2.getId(), otherTeam.player2.getId());
     }
 
     public void IncreaseHandicap() {

@@ -1,14 +1,13 @@
+import java.util.Objects;
+
 public class Player {
 
     protected String name;
     protected String initials;
     protected int handicap;
 
+
     protected boolean areInitialsAndNameLegal(String name, String initials) {
-        // Test for empty strings
-        if(name.trim().isEmpty() || initials.trim().isEmpty()) {
-            return false;
-        }
         // Test for legal initials
         String uppercaseName = name.toUpperCase().replaceAll("\\s", "");
         String upperCaseInitials = initials.toUpperCase().replaceAll("\\s", "");;
@@ -23,8 +22,16 @@ public class Player {
 
 
     public Player(String name, String initials, Integer handicap) {
+
+
+        if(name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Player name cannot be null or empty");
+        }
+        if(initials == null || initials.trim().isEmpty()) {
+            throw new IllegalArgumentException("Player initials cannot be null or empty");
+        }
         if(!areInitialsAndNameLegal(name, initials)) {
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException("Initials are not contained within name");
         }
         this.name = name;
         this.initials = initials;

@@ -67,7 +67,14 @@ public class PlayerCollection {
         return result.wasAcknowledged();
     }
 
+    private void isValidId(String id){
+        if(!ObjectId.isValid(id)){
+            throw new  IllegalArgumentException("Invalid player id");
+        }
+    }
+
     public StoredPlayer GetPlayer(String id) {
+        isValidId(id);
         Document playerDoc = players.find(eq(KEY_ID, new ObjectId(id))).first();
         if (playerDoc == null) {
             return  null;
@@ -83,14 +90,17 @@ public class PlayerCollection {
         return this.docs2Players(players.find(eq(KEY_INITIALS, initials)));
     }
 
-    public List<StoredPlayer> GetPlayers() {
+    public List<StoredPlayer> GetSortedPlayers() {
         List<StoredPlayer> playerList = this.docs2Players(players.find());
         Collections.sort(playerList, Comparator.comparing(StoredPlayer::getHandicap).reversed());
         return playerList;
     }
 
     public void DeletePlayer(String id) {
-        // TODO: Check that player exists
+        isValidId(id);
+        if(GetPlayer(id) == null){
+            throw new  IllegalArgumentException("Player not found");
+        };
         players.deleteOne(eq(KEY_ID, new ObjectId(id)));
     }
 }
