@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TeamTest {
 
     @Test
-    void isDistinctFromOtherTeam() {
+    void isDistinctFromOtherTeam() throws FoosballException {
         StoredPlayer player1 = new StoredPlayer("1", "Test", "T", 10);
         StoredPlayer player2 = new StoredPlayer("2", "Test", "T", 10);
         Team team1 = new Team(player1, player2);
@@ -27,7 +27,7 @@ class TeamTest {
         assertEquals(teamSharingPlayerWithTeam1.isDistinctFromOtherTeam(team1), team1.isDistinctFromOtherTeam(teamSharingPlayerWithTeam1));
     }
     @Test
-    void increaseHandicap() {
+    void increaseHandicap() throws FoosballException {
         StoredPlayer player1 = new StoredPlayer("1", "Test", "T", 10);
         StoredPlayer player2 = new StoredPlayer("2", "Test", "T", 10);
         Team team = new Team(player1, player2);
@@ -37,7 +37,7 @@ class TeamTest {
     }
 
     @Test
-    void decreaseHandicap() {
+    void decreaseHandicap() throws FoosballException {
         StoredPlayer player1 = new StoredPlayer("1", "Test", "T", 10);
         StoredPlayer player2 = new StoredPlayer("2", "Test", "T", 10);
         Team team = new Team(player1, player2);

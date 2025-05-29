@@ -5,6 +5,7 @@ public class Team {
     public StoredPlayer player2;
 
     public Team(StoredPlayer player1, StoredPlayer player2) {
+        // TODO: Allow for the case where 1 player is null
         if (Objects.equals(player1.getId(), player2.getId())) {
             throw new IllegalArgumentException("Players have the same ID");
         }

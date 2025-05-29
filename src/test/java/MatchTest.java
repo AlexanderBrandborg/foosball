@@ -10,7 +10,7 @@ public class MatchTest {
     private StoredMatch match;
 
     @Before
-    public void beforeFunction(){
+    public void beforeFunction() throws FoosballException {
         this.player1 = new StoredPlayer("1", "Test", "T", 10);
         this.player2 = new StoredPlayer("2", "Test", "T", 10);
         this.player3 = new StoredPlayer("3", "Test", "T", 10);

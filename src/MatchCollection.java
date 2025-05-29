@@ -27,7 +27,7 @@ public class MatchCollection {
         this.matches = mongo.getDatabase("foosball").getCollection("matches");
     }
 
-    private StoredMatch doc2Match(Document doc){
+    private StoredMatch doc2Match(Document doc) throws FoosballException {
         String id = doc.getObjectId(KEY_ID).toString();
         StoredPlayer homePlayer1 = players.GetPlayer(doc.getString(KEY_HOMEPLAYER1ID));
         StoredPlayer homePlayer2 = players.GetPlayer(doc.getString(KEY_HOMEPLAYER2ID));
@@ -39,14 +39,14 @@ public class MatchCollection {
         return new StoredMatch(id, new Team(homePlayer1, homePlayer2), new Team(awayPlayer1, awayPlayer2), homeScore, awayScore);
     }
 
-    public String CreateMatch(String homePlayer1Id, String homePlayer2Id, String awayPlayer1Id, String awayPlayer2Id){
+    public String CreateMatch(String homePlayer1Id, String homePlayer2Id, String awayPlayer1Id, String awayPlayer2Id) throws FoosballException {
         StoredPlayer homePlayer1 = players.GetPlayer(homePlayer1Id);
         StoredPlayer homePlayer2 = players.GetPlayer(homePlayer2Id);
         StoredPlayer awayPlayer1 = players.GetPlayer(awayPlayer1Id);
         StoredPlayer awayPlayer2 = players.GetPlayer(awayPlayer2Id);
 
         if(homePlayer1 == null || homePlayer2 == null || awayPlayer1 == null || awayPlayer2 == null){
-            throw new NullPointerException("homePlayer1 or homePlayer2 or awayPlayer1 or awayPlayer2 is null");
+            throw new FoosballException("homePlayer1 or homePlayer2 or awayPlayer1 or awayPlayer2 is null", 400);
         }
 
         Match match = new Match(new Team(homePlayer1, homePlayer2), new Team(awayPlayer1, awayPlayer2));
@@ -69,9 +69,8 @@ public class MatchCollection {
     }
 
     public void UpdateMatch(StoredMatch match){
-        // TODO: Make these updates to the DB Atomic
-
         // Reflects changes in handicap.
+        // TODO: Handle case where player is null
         players.UpdatePlayer(match.getHomeTeam().player1);
         players.UpdatePlayer(match.getHomeTeam().player2);
         players.UpdatePlayer(match.getAwayTeam().player1);
@@ -90,7 +89,7 @@ public class MatchCollection {
         }
     }
 
-    public StoredMatch getMatch(String id){
+    public StoredMatch getMatch(String id) throws FoosballException {
         Document matchDoc = matches.find(eq("_id", new ObjectId(id))).first();
         if (matchDoc == null) {
             return  null;

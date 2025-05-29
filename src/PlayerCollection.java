@@ -1,4 +1,5 @@
 import com.mongodb.MongoException;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
@@ -16,9 +17,9 @@ public class PlayerCollection {
     private static final String KEY_INITIALS = "initials";
     private static final String KEY_HANDICAP = "handicap";
 
-    private MongoCollection<Document> players;
+    private final MongoCollection<Document> players;
 
-    private StoredPlayer doc2Player(Document playerDoc) {
+    private StoredPlayer doc2Player(Document playerDoc) throws FoosballException {
         return new StoredPlayer(
                 playerDoc.getObjectId(KEY_ID).toString(),
                 playerDoc.getString(KEY_NAME),
@@ -27,9 +28,11 @@ public class PlayerCollection {
         );
     }
 
-    private List<StoredPlayer> docs2Players(Iterable<Document> playerDocs) {
+    private List<StoredPlayer> docs2Players(Iterable<Document> playerDocs) throws FoosballException{
         List<StoredPlayer> playerList = new ArrayList<>();
-        playerDocs.forEach(p -> playerList.add(doc2Player(p)));
+        for (Document p : playerDocs) {
+            playerList.add(doc2Player(p));
+        }
         return playerList;
     }
 
@@ -67,13 +70,13 @@ public class PlayerCollection {
         return result.wasAcknowledged();
     }
 
-    private void isValidId(String id){
+    private void isValidId(String id) throws FoosballException {
         if(!ObjectId.isValid(id)){
-            throw new  IllegalArgumentException("Invalid player id");
+            throw new FoosballException("Invalid player id", 400);
         }
     }
 
-    public StoredPlayer GetPlayer(String id) {
+    public StoredPlayer GetPlayer(String id) throws FoosballException {
         isValidId(id);
         Document playerDoc = players.find(eq(KEY_ID, new ObjectId(id))).first();
         if (playerDoc == null) {
@@ -82,24 +85,32 @@ public class PlayerCollection {
         return doc2Player(playerDoc);
     }
 
-    public List<StoredPlayer> GetPlayerByName(String name) {
+    public List<StoredPlayer> GetPlayerByName(String name) throws FoosballException {
         return this.docs2Players(players.find(eq(KEY_NAME, name)));
     }
 
-    public List<StoredPlayer> GetPlayerByInitials(String initials) {
+    public List<StoredPlayer> GetPlayerByInitials(String initials) throws FoosballException {
         return this.docs2Players(players.find(eq(KEY_INITIALS, initials)));
     }
 
-    public List<StoredPlayer> GetSortedPlayers() {
-        List<StoredPlayer> playerList = this.docs2Players(players.find());
-        Collections.sort(playerList, Comparator.comparing(StoredPlayer::getHandicap).reversed());
+    public List<StoredPlayer> GetSortedPlayers(String name, String initials) throws FoosballException {
+        FindIterable<Document> playerDocs = players.find();
+        if(name != null){
+            playerDocs.filter(eq("name", name));
+        }
+        if(initials != null){
+            playerDocs.filter(eq("initials", initials));
+        }
+
+        List<StoredPlayer> playerList = this.docs2Players(playerDocs);
+        playerList.sort(Comparator.comparing(StoredPlayer::getHandicap).reversed());
         return playerList;
     }
 
-    public void DeletePlayer(String id) {
+    public void DeletePlayer(String id) throws FoosballException {
         isValidId(id);
         if(GetPlayer(id) == null){
-            throw new  IllegalArgumentException("Player not found");
+            throw new FoosballException("Player not found", 404);
         };
         players.deleteOne(eq(KEY_ID, new ObjectId(id)));
     }

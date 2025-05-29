@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PlayerTest {
 
     @Test
-    void testDefaultHandicapIs10() {
+    void testDefaultHandicapIs10() throws FoosballException {
         Player player = new Player("Test", "T");
         assertEquals(10, player.getHandicap());
     }
@@ -13,21 +13,21 @@ class PlayerTest {
     // TODO: Could add way more string test cases
     @Test
     void testCantSetEmptyName() {
-        assertThrows(IllegalArgumentException.class, () ->  new Player("  ", "T"));
+        assertThrows(FoosballException.class, () ->  new Player("  ", "T"));
     }
     @Test
     void testCantSetEmptyInitials() {
-        assertThrows(IllegalArgumentException.class, () ->  new Player("Test", "  "));
+        assertThrows(FoosballException.class, () ->  new Player("Test", "  "));
     }
 
     @Test
     void testInitialsMustBeContainedInName() {
-        assertThrows(IllegalArgumentException.class, () ->  new Player("Alex", "BB"));
+        assertThrows(FoosballException.class, () ->  new Player("Alex", "BB"));
     }
 
     @Test
     void testInitialsCantBeLongerThanName() {
-        assertThrows(IllegalArgumentException.class, () ->  new Player("Alex", "Alexa"));
+        assertThrows(FoosballException.class, () ->  new Player("Alex", "Alexa"));
     }
 
     @Test

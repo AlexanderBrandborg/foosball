@@ -21,17 +21,17 @@ public class Player {
     }
 
 
-    public Player(String name, String initials, Integer handicap) {
+    public Player(String name, String initials, Integer handicap) throws FoosballException {
 
 
         if(name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Player name cannot be null or empty");
+            throw new FoosballException("Player name cannot be null or empty", 400);
         }
         if(initials == null || initials.trim().isEmpty()) {
-            throw new IllegalArgumentException("Player initials cannot be null or empty");
+            throw new FoosballException("Player initials cannot be null or empty", 400);
         }
         if(!areInitialsAndNameLegal(name, initials)) {
-            throw new IllegalArgumentException("Initials are not contained within name");
+            throw new FoosballException("Initials are not contained within name", 400);
         }
         this.name = name;
         this.initials = initials;
@@ -43,12 +43,11 @@ public class Player {
         }
     }
 
-    // TODO: Maybe get rid of this constructor
-    public Player(String name, String initials) {
+    public Player(String name, String initials) throws FoosballException {
         this(name, initials, null);
     }
 
-    public Player(PlayerInput playerInput) {
+    public Player(PlayerInput playerInput) throws FoosballException {
         this(playerInput.name, playerInput.initials, playerInput.handicap);
     }
 
