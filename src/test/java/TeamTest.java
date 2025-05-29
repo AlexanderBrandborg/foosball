@@ -25,6 +25,19 @@ class TeamTest {
         Team teamSharingPlayerWithTeam1 = new Team(player1, player3);
         assertEquals(false, team1.isDistinctFromOtherTeam(teamSharingPlayerWithTeam1));
         assertEquals(teamSharingPlayerWithTeam1.isDistinctFromOtherTeam(team1), team1.isDistinctFromOtherTeam(teamSharingPlayerWithTeam1));
+
+        // Works with a player set to null
+        Team teamWithMissingFirstPlayer = new Team(null, player4);
+        assertEquals(true, team1.isDistinctFromOtherTeam(teamWithMissingFirstPlayer));
+
+        Team teamWithMissingSecondPlayer = new Team(player3, null);
+        assertEquals(true, team1.isDistinctFromOtherTeam(teamWithMissingSecondPlayer));
+
+        Team teamWith1MissingPlayer1SharedPlayer = new Team(null, player2);
+        assertEquals(false, team1.isDistinctFromOtherTeam(teamWith1MissingPlayer1SharedPlayer));
+
+        Team teamWithMissingPlayers = new Team(null, null);
+        assertEquals(true, team1.isDistinctFromOtherTeam(teamWithMissingPlayers));
     }
     @Test
     void increaseHandicap() throws FoosballException {
@@ -32,8 +45,17 @@ class TeamTest {
         StoredPlayer player2 = new StoredPlayer("2", "Test", "T", 10);
         Team team = new Team(player1, player2);
         team.IncreaseHandicap();
-        assertEquals(player1.getHandicap(), 11);
-        assertEquals(player2.getHandicap(), 11);
+        assertEquals(11, player1.getHandicap());
+        assertEquals(11, player2.getHandicap());
+
+        // Nulls
+        Team teamWithMissingFirstPlayer = new Team(null, player2);
+        teamWithMissingFirstPlayer.IncreaseHandicap();
+        assertEquals(12, player2.getHandicap());
+
+        Team teamWithMissingSecondPlayer = new Team(player1, null);
+        teamWithMissingSecondPlayer.IncreaseHandicap();
+        assertEquals(12, player1.getHandicap());
     }
 
     @Test
@@ -42,7 +64,16 @@ class TeamTest {
         StoredPlayer player2 = new StoredPlayer("2", "Test", "T", 10);
         Team team = new Team(player1, player2);
         team.DecreaseHandicap();
-        assertEquals(player1.getHandicap(), 9);
-        assertEquals(player2.getHandicap(), 9);
+        assertEquals(9, player1.getHandicap());
+        assertEquals(9, player2.getHandicap());
+
+        // Nulls
+        Team teamWithMissingFirstPlayer = new Team(null, player2);
+        teamWithMissingFirstPlayer.DecreaseHandicap();
+        assertEquals(8, player2.getHandicap());
+
+        Team teamWithMissingSecondPlayer = new Team(player1, null);
+        teamWithMissingSecondPlayer.DecreaseHandicap();
+        assertEquals(8, player1.getHandicap());
     }
 }

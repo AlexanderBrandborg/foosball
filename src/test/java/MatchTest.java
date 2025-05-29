@@ -34,7 +34,7 @@ public class MatchTest {
     }
 
     @Test
-    public void testPlayerCantBeOnBothTeams() {
+    public void testPlayerCantBeOnBothTeams() throws FoosballException {
         Team teamAlsoWithPlayer1 = new Team(player1, player3);
         assertThrows(FoosballException.class, () -> new StoredMatch("1", homeTeam, teamAlsoWithPlayer1, null, null));
     }

@@ -1,31 +1,46 @@
-import java.util.Objects;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Team {
     public StoredPlayer player1;
     public StoredPlayer player2;
 
-    public Team(StoredPlayer player1, StoredPlayer player2) {
-        // TODO: Allow for the case where 1 player is null
-        if (Objects.equals(player1.getId(), player2.getId())) {
-            throw new IllegalArgumentException("Players have the same ID");
+    public Team(StoredPlayer player1, StoredPlayer player2) throws FoosballException {
+        // Accounts for the case where one of the team members are null
+        if (player1 != null && player2 != null && player1.getId() == player2.getId()) {
+            throw new FoosballException("Players have the same ID", 400);
         }
         this.player1 = player1;
         this.player2 = player2;
     }
 
+    public Set<String> getActiveIds(){
+        Set<String> ids = new HashSet<>();
+        if (player1 != null) {ids.add(player1.getId());}
+        if (player2 != null) {ids.add(player2.getId());}
+        return ids;
+    }
+
     public Boolean isDistinctFromOtherTeam(Team otherTeam) {
-        // TODO: Maybe just update the equals for StoredPlayer?
-        return !Objects.equals(this.player1.getId(), otherTeam.player1.getId()) && !Objects.equals(this.player1.getId(), otherTeam.player2.getId())
-                && !Objects.equals(this.player2.getId(), otherTeam.player1.getId()) && !Objects.equals(this.player2.getId(), otherTeam.player2.getId());
+        return Collections.disjoint(getActiveIds(), otherTeam.getActiveIds());
     }
 
     public void IncreaseHandicap() {
-        this.player1.increaseHandicap();
-        this.player2.increaseHandicap();
+        if(this.player1 != null){
+            this.player1.increaseHandicap();
+        }
+        if(this.player2 != null){
+            this.player2.increaseHandicap();
+        }
     }
 
     public void DecreaseHandicap() {
-        this.player1.decreaseHandicap();
-        this.player2.decreaseHandicap();
+        if(this.player1 != null){
+            this.player1.decreaseHandicap();
+        }
+        if(this.player2 != null){
+            this.player2.decreaseHandicap();
+        }
     }
 }

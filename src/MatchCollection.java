@@ -6,6 +6,8 @@ import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -22,8 +24,8 @@ public class MatchCollection {
     private PlayerCollection players; // This collection needs knowledge about players
     private MongoCollection<Document> matches;
 
-    public MatchCollection(MongoClient mongo){
-        this.players = new PlayerCollection(mongo);
+    public MatchCollection(MongoClient mongo, PlayerCollection playerCollection){
+        this.players = playerCollection;
         this.matches = mongo.getDatabase("foosball").getCollection("matches");
     }
 
@@ -40,6 +42,7 @@ public class MatchCollection {
     }
 
     public String CreateMatch(String homePlayer1Id, String homePlayer2Id, String awayPlayer1Id, String awayPlayer2Id) throws FoosballException {
+        // Fetch players to confirm that they exist at creation time
         StoredPlayer homePlayer1 = players.GetPlayer(homePlayer1Id);
         StoredPlayer homePlayer2 = players.GetPlayer(homePlayer2Id);
         StoredPlayer awayPlayer1 = players.GetPlayer(awayPlayer1Id);
@@ -69,12 +72,15 @@ public class MatchCollection {
     }
 
     public void UpdateMatch(StoredMatch match){
-        // Reflects changes in handicap.
-        // TODO: Handle case where player is null
-        players.UpdatePlayer(match.getHomeTeam().player1);
-        players.UpdatePlayer(match.getHomeTeam().player2);
-        players.UpdatePlayer(match.getAwayTeam().player1);
-        players.UpdatePlayer(match.getAwayTeam().player2);
+        List<StoredPlayer> playerUpdateList = new ArrayList<>();
+        playerUpdateList.add(match.getHomeTeam().player1);
+        playerUpdateList.add(match.getHomeTeam().player2);
+        playerUpdateList.add(match.getAwayTeam().player1);
+        playerUpdateList.add(match.getAwayTeam().player2);
+
+        // ensure we don't update a deleted player
+        playerUpdateList.removeIf(Objects::isNull);
+        playerUpdateList.forEach(player -> players.UpdatePlayer(player));
 
         // Then update the match with new scores
         Document setData = new Document()

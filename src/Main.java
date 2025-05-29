@@ -11,9 +11,6 @@ import java.util.List;
 import static spark.Spark.*;
 
 public class Main {
-
-
-
     public static void main(String[] args) {
         ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017");
 
@@ -68,6 +65,8 @@ public class Main {
             }
         });
 
+        // TODO: Create patch for updating a player
+
         delete("/players/:id", (req,res)-> {
             try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
                 PlayerCollection playerCollection = new PlayerCollection(mongoClient);
@@ -78,7 +77,8 @@ public class Main {
 
         post("/matches", (request, response) -> {
             try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
-                MatchCollection matchCollection = new MatchCollection(mongoClient);
+                PlayerCollection playerCollection = new PlayerCollection(mongoClient);
+                MatchCollection matchCollection = new MatchCollection(mongoClient, playerCollection);
                 MatchInput matchInput = new Gson().fromJson(request.body(), MatchInput.class);
                 String id = matchCollection.CreateMatch(matchInput.homePlayer1Id, matchInput.homePlayer2Id,
                         matchInput.awayPlayer1Id, matchInput.awayPlayer2Id);
@@ -86,9 +86,11 @@ public class Main {
             }
         });
 
+        // NOTE: This path allows us to set scores, even when some players in the match have been deleted
         patch("/matches/:id", (request, response) -> {
             try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
-                MatchCollection matchCollection = new MatchCollection(mongoClient);
+                PlayerCollection playerCollection = new PlayerCollection(mongoClient);
+                MatchCollection matchCollection = new MatchCollection(mongoClient, playerCollection);
                 ScoreInput scoreInput = new Gson().fromJson(request.body(), ScoreInput.class);
                 String id = request.params(":id");
                 StoredMatch match = matchCollection.getMatch(id);
