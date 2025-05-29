@@ -118,6 +118,20 @@ public class Main {
             }
         });
 
+        get("/matches/:id", (request, response) -> {
+            try (MongoClient mongoClient = MongoClients.create(clientSettings)) {
+                PlayerCollection playerCollection = new PlayerCollection(mongoClient);
+                MatchCollection matchCollection = new MatchCollection(mongoClient, playerCollection);
+                String id = request.params(":id");
+                StoredMatch match = matchCollection.getMatch(id);
+                if (match == null) {
+                    throw new FoosballException("Match not found", 404);
+                }
+                return new Gson().toJson(match);
+            }
+        });
+
+
         // TODO: If you were to differentiate more on subtypes, you could also add the decision about status code to this layer
         exception(FoosballException.class, (e, request, response) -> {
             response.status(e.statusCode);

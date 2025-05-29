@@ -5,10 +5,12 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.result.InsertOneResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 
 import java.util.*;
 
+import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
 
 public class PlayerCollection {
@@ -88,13 +90,14 @@ public class PlayerCollection {
     }
 
     public List<StoredPlayer> GetSortedPlayers(String name, String initials) throws FoosballException {
-        FindIterable<Document> playerDocs = players.find();
+        Bson filter = new Document();
         if(name != null){
-            playerDocs.filter(eq("name", name));
+            filter = and(filter, eq("name", name));
         }
         if(initials != null){
-            playerDocs.filter(eq("initials", initials));
+            filter = and(filter, eq("initials", initials));
         }
+        FindIterable<Document> playerDocs = players.find(filter);
 
         List<StoredPlayer> playerList = this.docs2Players(playerDocs);
         playerList.sort(Comparator.comparing(StoredPlayer::getHandicap).reversed());
